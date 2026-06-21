@@ -8,6 +8,10 @@
     <a href="index.php?action=clientes" class="btn btn-outline">← Volver</a>
 </div>
 
+<?php if (isset($_SESSION['error'])): ?>
+    <div class="alert alert-error"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+<?php endif; ?>
+
 <div class="card" style="max-width: 600px; margin: 0 auto;">
     <div class="card-header">Formulario de Registro</div>
     <div class="card-body">
@@ -22,7 +26,7 @@
             </div>
             <div class="form-group">
                 <label>Telefono</label>
-                <input type="tel" name="telefono">
+                <input type="tel" name="telefono" placeholder="Ej: 912345678 o +56912345678">
             </div>
             <div class="form-group">
                 <label>Empresa</label>

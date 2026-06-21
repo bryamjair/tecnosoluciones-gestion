@@ -1,4 +1,17 @@
-<?php include_once __DIR__ . '/../layouts/header.php'; ?>
+<?php 
+// Definir variables por defecto si no existen
+$totalClientes = $totalClientes ?? 0;
+$totalProyectos = $totalProyectos ?? 0;
+$totalTareas = $totalTareas ?? 0;
+$proyectosPendientes = $proyectosPendientes ?? 0;
+$proyectosEnProgreso = $proyectosEnProgreso ?? 0;
+$proyectosCompletados = $proyectosCompletados ?? 0;
+$tareasPrioridadBaja = $tareasPrioridadBaja ?? 0;
+$tareasPrioridadMedia = $tareasPrioridadMedia ?? 0;
+$tareasPrioridadAlta = $tareasPrioridadAlta ?? 0;
+
+include_once __DIR__ . '/../layouts/header.php'; 
+?>
 
 <style>
     .reports-header {
@@ -100,7 +113,7 @@
 <div class="reports-grid">
     <!-- Tarjeta Clientes -->
     <div class="report-card">
-        <div class="report-count" id="clientesCount">0</div>
+        <div class="report-count" id="clientesCount"><?php echo $totalClientes; ?></div>
         <div class="report-title">Clientes</div>
         <div class="report-desc">Reporte completo de todos los clientes registrados en el sistema</div>
         <div class="report-buttons">
@@ -112,7 +125,7 @@
     
     <!-- Tarjeta Proyectos -->
     <div class="report-card">
-        <div class="report-count" id="proyectosCount">0</div>
+        <div class="report-count" id="proyectosCount"><?php echo $totalProyectos; ?></div>
         <div class="report-title">Proyectos</div>
         <div class="report-desc">Reporte detallado de proyectos con estado, fechas y clientes asociados</div>
         <div class="report-buttons">
@@ -124,7 +137,7 @@
     
     <!-- Tarjeta Tareas -->
     <div class="report-card">
-        <div class="report-count" id="tareasCount">0</div>
+        <div class="report-count" id="tareasCount"><?php echo $totalTareas; ?></div>
         <div class="report-title">Tareas</div>
         <div class="report-desc">Reporte de tareas por prioridad, estado y responsables asignados</div>
         <div class="report-buttons">
@@ -158,9 +171,6 @@ function cargarEstadisticas() {
         })
         .catch(error => {
             console.error('Error:', error);
-            document.getElementById('clientesCount').textContent = '<?php echo $totalClientes ?? 0; ?>';
-            document.getElementById('proyectosCount').textContent = '<?php echo $totalProyectos ?? 0; ?>';
-            document.getElementById('tareasCount').textContent = '<?php echo $totalTareas ?? 0; ?>';
         });
 }
 
@@ -181,7 +191,9 @@ function generarReporte(tipo, formato) {
         else if (tipo === 'proyectos') url = 'index.php?action=reportes&sub=proyectos_pdf';
         else if (tipo === 'tareas') url = 'index.php?action=reportes&sub=tareas_pdf';
         var ventana = window.open(url, '_blank');
-        ventana.onload = function() { ventana.print(); };
+        if (ventana) {
+            ventana.onload = function() { ventana.print(); };
+        }
     }
 }
 </script>

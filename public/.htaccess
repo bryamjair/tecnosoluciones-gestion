@@ -1,18 +1,21 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /proyecto_final/public/
+    RewriteBase /TecnoSoluciones-Gestor/public/
     
-    # Redirigir a index.php si no es un archivo o directorio existente
+    # Redirigir todas las solicitudes a index.php
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ index.php?action=$1 [L,QSA]
+    RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
 </IfModule>
 
 # Proteger archivos sensibles
-<FilesMatch "^\.">
+<FilesMatch "\.(sql|log|ini|conf)$">
     Order allow,deny
     Deny from all
 </FilesMatch>
 
-# Deshabilitar listado de directorios
-Options -Indexes
+# Permitir acceso a assets
+<FilesMatch "\.(css|js|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot)$">
+    Order allow,deny
+    Allow from all
+</FilesMatch>

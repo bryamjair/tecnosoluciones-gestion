@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro - TecnoSoluciones</title>
+    <!-- Titulo de la pagina de registro actualizado -->
+    <title>Registro - TecnoSoluciones-Gestor</title>
     <style>
+        /* Reset y estilos globales */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -24,6 +26,7 @@
             border: 1px solid rgba(13, 148, 136, 0.1);
         }
         .header { text-align: center; margin-bottom: 2rem; }
+        /* Logo actualizado con el nuevo nombre */
         .logo { font-size: 1.75rem; font-weight: 600; color: #1e293b; letter-spacing: -0.5px; }
         .logo span { color: #0d9488; font-weight: 500; }
         .subtitle { font-size: 0.8rem; color: #64748b; margin-top: 0.5rem; }
@@ -100,9 +103,11 @@
     <div class="container">
         <div class="card">
             <div class="header">
-                <div class="logo">Tecno<span>Soluciones</span></div>
+                <!-- Logo con el nombre actualizado -->
+                <div class="logo">TecnoSoluciones<span>-Gestor</span></div>
                 <div class="subtitle">Crear una cuenta</div>
             </div>
+            <!-- Mostrar mensajes de error -->
             <?php if (isset($_SESSION['error'])): ?>
                 <div class="alert alert-error"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
             <?php endif; ?>
@@ -112,7 +117,9 @@
                 <?php endforeach; ?>
                 <?php unset($_SESSION['errores']); ?>
             <?php endif; ?>
+            <!-- Formulario de registro con token CSRF -->
             <form method="POST">
+                <input type="hidden" name="csrf_token" value="<?php echo generarTokenCSRF(); ?>">
                 <div class="form-group">
                     <label>Nombre Completo</label>
                     <input type="text" name="nombre" placeholder="Juan Perez" required autofocus>

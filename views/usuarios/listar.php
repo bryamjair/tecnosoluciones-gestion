@@ -1,4 +1,8 @@
-<?php include_once __DIR__ . '/../layouts/header.php'; ?>
+<?php 
+// Asegurar que $usuarios está definido
+$usuarios = $usuarios ?? [];
+include_once __DIR__ . '/../layouts/header.php'; 
+?>
 
 <div class="flex-between mb-4">
     <div>
@@ -9,15 +13,11 @@
 
 <!-- Mostrar mensajes de éxito/error -->
 <?php if (isset($_SESSION['success'])): ?>
-    <div class="alert alert-success" style="background: #ccfbf1; border-left: 3px solid #0d9488; color: #115e59; padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.75rem; margin-bottom: 1rem;">
-        <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
-    </div>
+    <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
 <?php endif; ?>
 
 <?php if (isset($_SESSION['error'])): ?>
-    <div class="alert alert-error" style="background: #fee2e2; border-left: 3px solid #ef4444; color: #991b1b; padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.75rem; margin-bottom: 1rem;">
-        <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
-    </div>
+    <div class="alert alert-error"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
 <?php endif; ?>
 
 <div class="table-responsive">
@@ -61,13 +61,13 @@
                     </td>
                     <td style="padding: 12px; border-bottom: 1px solid #f1f5f9;">
                         <?php if ($u['id'] != $_SESSION['user_id']): ?>
-                            <?php if ($_SESSION['user_rol'] == 'super_admin'): ?>
+                            <?php if (isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 'super_admin'): ?>
                                 <select onchange="cambiarRol(<?php echo $u['id']; ?>, this.value)" style="padding: 0.25rem 0.5rem; border: 1px solid #d4d4d8; border-radius: 4px; font-size: 0.7rem; margin-right: 0.5rem;">
                                     <option value="usuario" <?php echo ($u['rol'] == 'usuario') ? 'selected' : ''; ?>>Usuario</option>
                                     <option value="admin" <?php echo ($u['rol'] == 'admin') ? 'selected' : ''; ?>>Admin</option>
                                     <option value="super_admin" <?php echo ($u['rol'] == 'super_admin') ? 'selected' : ''; ?>>Super Admin</option>
                                 </select>
-                                <a href="index.php?action=usuarios&sub=eliminar&id=<?php echo $u['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar este usuario? Esta acción no se puede deshacer.')" style="background: transparent; border: 1px solid #fecaca; color: #dc2626; padding: 0.25rem 0.75rem; border-radius: 6px; font-size: 0.7rem; text-decoration: none; display: inline-block;">Eliminar</a>
+                                <a href="index.php?action=usuarios&sub=eliminar&id=<?php echo $u['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar este usuario? Esta acción no se puede deshacer.')">Eliminar</a>
                             <?php else: ?>
                                 <span style="color: #94a3b8; font-size: 0.7rem;">Solo Super Admin</span>
                             <?php endif; ?>

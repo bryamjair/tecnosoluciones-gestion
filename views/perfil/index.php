@@ -1,14 +1,13 @@
 <?php
-if (!isset($usuario) || empty($usuario)) {
-    $usuario = [
-        'nombre' => $_SESSION['user_nombre'] ?? 'Usuario',
-        'email' => $_SESSION['user_email'] ?? '',
-        'telefono' => '',
-        'created_at' => date('Y-m-d H:i:s'),
-        'ultimo_acceso' => null,
-        'rol' => 'usuario'
-    ];
-}
+// Definir variables por defecto
+$usuario = $usuario ?? [
+    'nombre' => $_SESSION['user_nombre'] ?? 'Usuario',
+    'email' => $_SESSION['user_email'] ?? '',
+    'telefono' => '',
+    'created_at' => date('Y-m-d H:i:s'),
+    'ultimo_acceso' => null,
+    'rol' => 'usuario'
+];
 
 include_once __DIR__ . '/../layouts/header.php'; 
 ?>
@@ -19,6 +18,14 @@ include_once __DIR__ . '/../layouts/header.php';
         <p style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem;">Informacion personal y configuracion de cuenta</p>
     </div>
 </div>
+
+<?php if (isset($_SESSION['success'])): ?>
+    <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['error'])): ?>
+    <div class="alert alert-error"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+<?php endif; ?>
 
 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; margin-bottom: 2rem;">
     <div class="card" style="text-align: center;">
@@ -57,7 +64,7 @@ include_once __DIR__ . '/../layouts/header.php';
             </div>
             <div class="form-group">
                 <label>Miembro desde</label>
-                <input type="text" value="<?php echo date('d/m/Y', strtotime($usuario['created_at'])); ?>" disabled style="color: #94a3b8;">
+                <input type="text" value="<?php echo isset($usuario['created_at']) ? date('d/m/Y', strtotime($usuario['created_at'])) : date('d/m/Y'); ?>" disabled style="color: #94a3b8;">
             </div>
             <div class="flex-between" style="margin-top: 1.5rem;">
                 <button type="submit" class="btn btn-primary">Guardar Cambios</button>
@@ -77,6 +84,7 @@ include_once __DIR__ . '/../layouts/header.php';
             <div class="form-group">
                 <label>Nueva Contraseña</label>
                 <input type="password" name="nueva_password" required>
+                <div class="password-strength"></div>
             </div>
             <div class="form-group">
                 <label>Confirmar Nueva Contraseña</label>

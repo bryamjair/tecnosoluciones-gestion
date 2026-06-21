@@ -1,4 +1,8 @@
-<?php include_once __DIR__ . '/../layouts/header.php'; ?>
+<?php 
+// Asegurar que $clientes está definido
+$clientes = $clientes ?? [];
+include_once __DIR__ . '/../layouts/header.php'; 
+?>
 
 <div class="flex-between mb-4">
     <div>
@@ -8,20 +12,29 @@
     <a href="index.php?action=clientes&sub=agregar" class="btn btn-primary">+ Nuevo Cliente</a>
 </div>
 
+<!-- Mostrar mensajes -->
+<?php if (isset($_SESSION['success'])): ?>
+    <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['error'])): ?>
+    <div class="alert alert-error"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+<?php endif; ?>
+
 <div class="card" style="margin-bottom: 1rem;">
     <div class="card-body">
         <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
             <div style="flex: 1; min-width: 200px;">
                 <label style="font-size: 0.65rem; text-transform: uppercase; color: #64748b; font-weight: 600;">Buscar</label>
-                <input type="text" id="buscarCliente" placeholder="Nombre o empresa..." style="width: 100%; padding: 0.4rem 0.6rem; border: 1px solid #d4d4d8; border-radius: 6px; font-size: 0.8rem;">
+                <input type="text" id="buscarCliente" placeholder="Nombre o empresa..." style="width: 100%; padding: 0.4rem 0.6rem; border: 1px solid #d4d4d8; border-radius: 6px; font-size: 0.8rem;" onkeyup="buscarClientes()">
             </div>
             <div>
-                <button onclick="filtrarClientes()" class="btn btn-primary btn-sm">Buscar</button>
+                <button onclick="buscarClientes()" class="btn btn-primary btn-sm">Buscar</button>
                 <button onclick="limpiarFiltro()" class="btn btn-outline btn-sm">Limpiar</button>
             </div>
         </div>
         <div style="margin-top: 0.5rem; font-size: 0.7rem; color: #94a3b8;">
-            <span id="resultadosCount">Mostrando todos los clientes</span>
+            <span id="resultadosCount">Mostrando <?php echo count($clientes); ?> clientes</span>
         </div>
     </div>
 </div>
@@ -61,15 +74,5 @@
         </tbody>
     </table>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('buscarCliente').addEventListener('keyup', function(e) {
-        if (e.key === 'Enter') {
-            filtrarClientes();
-        }
-    });
-});
-</script>
 
 <?php include_once __DIR__ . '/../layouts/footer.php'; ?>

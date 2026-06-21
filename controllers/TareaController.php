@@ -1,11 +1,14 @@
 <?php
+// Controlador de Tareas - Gestiona las operaciones CRUD de tareas
 class TareaController {
     private $conn;
 
+    // Constructor - Recibe la conexion a la base de datos
     public function __construct($db) {
         $this->conn = $db;
     }
 
+    // Listar todas las tareas
     public function listar() {
         $tareaModel = new Tarea($this->conn);
         $tareas = $tareaModel->listar();
@@ -15,7 +18,9 @@ class TareaController {
         include_once __DIR__ . '/../views/tareas/listar.php';
     }
 
+    // Mostrar formulario para agregar tarea
     public function agregar() {
+        // Obtener lista de proyectos y usuarios para los selects
         $proyectoModel = new Proyecto($this->conn);
         $proyectos = $proyectoModel->listar();
         if (!$proyectos) {
@@ -26,6 +31,8 @@ class TareaController {
         if (!$usuarios) {
             $usuarios = [];
         }
+        
+        // Procesar envio del formulario
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (empty($_POST['titulo'])) {
                 $_SESSION['error'] = "El título de la tarea es obligatorio";
@@ -49,15 +56,20 @@ class TareaController {
         include_once __DIR__ . '/../views/tareas/agregar.php';
     }
 
+    // Mostrar formulario para editar tarea
     public function editar() {
         $id = $_GET['id'] ?? 0;
         $tareaModel = new Tarea($this->conn);
         $tarea = $tareaModel->obtenerPorId($id);
+        
+        // Verificar que la tarea existe
         if (!$tarea) {
             $_SESSION['error'] = "Tarea no encontrada";
             header("Location: index.php?action=tareas");
             exit();
         }
+        
+        // Obtener lista de proyectos y usuarios para los selects
         $proyectoModel = new Proyecto($this->conn);
         $proyectos = $proyectoModel->listar();
         if (!$proyectos) {
@@ -68,6 +80,8 @@ class TareaController {
         if (!$usuarios) {
             $usuarios = [];
         }
+        
+        // Procesar envio del formulario
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (empty($_POST['titulo'])) {
                 $_SESSION['error'] = "El título de la tarea es obligatorio";
@@ -90,6 +104,7 @@ class TareaController {
         include_once __DIR__ . '/../views/tareas/editar.php';
     }
 
+    // Eliminar una tarea
     public function eliminar() {
         $id = $_GET['id'] ?? 0;
         $tareaModel = new Tarea($this->conn);
@@ -102,6 +117,7 @@ class TareaController {
         exit();
     }
 
+    // Obtener tareas por proyecto (para selects dinamicos)
     public function porProyecto() {
         $proyecto_id = $_GET['proyecto_id'] ?? 0;
         $tareaModel = new Tarea($this->conn);

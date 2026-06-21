@@ -1,11 +1,14 @@
 <?php
+// Controlador de API - Maneja las peticiones AJAX
 class ApiController {
     private $conn;
 
+    // Constructor - Recibe la conexion a la base de datos
     public function __construct($db) {
         $this->conn = $db;
     }
 
+    // Obtener estadisticas para los reportes
     public function stats() {
         header('Content-Type: application/json');
         try {
@@ -36,6 +39,7 @@ class ApiController {
         exit();
     }
 
+    // Obtener datos para el dashboard
     public function dashboard() {
         header('Content-Type: application/json');
         try {
@@ -74,6 +78,7 @@ class ApiController {
         exit();
     }
 
+    // Obtener actividad reciente (auditoria)
     public function actividad() {
         header('Content-Type: application/json');
         try {
@@ -95,6 +100,86 @@ class ApiController {
             echo json_encode(['success' => true, 'actividad' => $resultado]);
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'actividad' => []]);
+        }
+        exit();
+    }
+
+    // Buscar clientes en tiempo real
+    public function buscarClientes() {
+        header('Content-Type: application/json');
+        try {
+            $query = "SELECT * FROM clientes WHERE 1=1";
+            $params = [];
+            
+            if (!empty($_GET['q'])) {
+                $query .= " AND (nombre LIKE :busqueda OR empresa LIKE :busqueda OR email LIKE :busqueda)";
+                $params[':busqueda'] = '%' . $_GET['q'] . '%';
+            }
+            
+            $query .= " ORDER BY id DESC";
+            
+            $stmt = $this->conn->prepare($query);
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            $stmt->execute();
+            $clientes = $stmt->fetchAll();
+            
+            $countQuery = "SELECT COUNT(*) as total FROM clientes";
+            $countStmt = $this->conn->query($countQuery);
+            $total = $countStmt->fetch()['total'];
+            
+            echo json_encode([
+                'success' => true,
+                'clientes' => $clientes,
+                'total' => $total
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        exit();
+    }
+
+    // Buscar proyectos en tiempo real
+    public function buscarProyectos() {
+        header('Content-Type: application/json');
+        try {
+            $query = "SELECT p.*, c.nombre as cliente_nombre 
+                      FROM proyectos p 
+                      LEFT JOIN clientes c ON p.cliente_id = c.id 
+                      WHERE 1=1";
+            $params = [];
+            
+            if (!empty($_GET['q'])) {
+                $query .= " AND (p.nombre LIKE :busqueda OR c.nombre LIKE :busqueda)";
+                $params[':busqueda'] = '%' . $_GET['q'] . '%';
+            }
+            
+            if (!empty($_GET['estado'])) {
+                $query .= " AND p.estado = :estado";
+                $params[':estado'] = $_GET['estado'];
+            }
+            
+            $query .= " ORDER BY p.id DESC";
+            
+            $stmt = $this->conn->prepare($query);
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            $stmt->execute();
+            $proyectos = $stmt->fetchAll();
+            
+            $countQuery = "SELECT COUNT(*) as total FROM proyectos";
+            $countStmt = $this->conn->query($countQuery);
+            $total = $countStmt->fetch()['total'];
+            
+            echo json_encode([
+                'success' => true,
+                'proyectos' => $proyectos,
+                'total' => $total
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
         exit();
     }

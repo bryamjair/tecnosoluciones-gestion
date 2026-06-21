@@ -1,12 +1,15 @@
 <?php
+// Modelo de Cliente - Gestiona las operaciones con la tabla clientes
 class Cliente {
     private $conn;
     private $table = 'clientes';
 
+    // Constructor - Recibe la conexion a la base de datos
     public function __construct($db) {
         $this->conn = $db;
     }
 
+    // Listar todos los clientes ordenados por ID descendente
     public function listar() {
         $query = "SELECT * FROM " . $this->table . " ORDER BY id DESC";
         $stmt = $this->conn->prepare($query);
@@ -14,6 +17,7 @@ class Cliente {
         return $stmt->fetchAll();
     }
 
+    // Obtener un cliente por su ID
     public function obtenerPorId($id) {
         $query = "SELECT * FROM " . $this->table . " WHERE id = :id";
         $stmt = $this->conn->prepare($query);
@@ -22,35 +26,48 @@ class Cliente {
         return $stmt->fetch();
     }
 
-    private function validarTelefono($telefono) {
-        return preg_match('/^[\+\d][\d\s\-]{6,}$/', $telefono);
+    // Validar formato de telefono (7 a 15 digitos, opcional +)
+    public function validarTelefono($telefono) {
+        if (empty($telefono)) return true;
+        $limpio = preg_replace('/[\s\-\(\)]/', '', $telefono);
+        return preg_match('/^[+]?[0-9]{7,15}$/', $limpio);
     }
 
-    private function limpiarTelefono($telefono) {
-        return preg_replace('/[\s\-]/', '', $telefono);
+    // Limpiar telefono eliminando espacios, guiones y parentesis
+    public function limpiarTelefono($telefono) {
+        if (empty($telefono)) return null;
+        return preg_replace('/[\s\-\(\)]/', '', $telefono);
     }
 
+    // Agregar un nuevo cliente
     public function agregar($nombre, $email, $telefono, $empresa) {
-        if (!empty($telefono) && !$this->validarTelefono($telefono)) {
-            $_SESSION['error'] = "El teléfono solo debe contener números, espacios o guiones. Ejemplo: +56912345678 o 912345678";
-            return false;
+        // Validar telefono antes de insertar
+        if (!$this->validarTelefono($telefono)) {
+            return ['success' => false, 'message' => 'El teléfono debe tener 7 a 15 dígitos'];
         }
-        $telefonoLimpio = !empty($telefono) ? $this->limpiarTelefono($telefono) : null;
+        $telefonoLimpio = $this->limpiarTelefono($telefono);
+        
         $query = "INSERT INTO " . $this->table . " (nombre, email, telefono, empresa) VALUES (:nombre, :email, :telefono, :empresa)";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':nombre', $nombre);
         $stmt->bindParam(':email', $email);
         $stmt->bindParam(':telefono', $telefonoLimpio);
         $stmt->bindParam(':empresa', $empresa);
-        return $stmt->execute();
+        
+        if ($stmt->execute()) {
+            return ['success' => true, 'id' => $this->conn->lastInsertId()];
+        }
+        return ['success' => false, 'message' => 'Error al agregar el cliente'];
     }
 
+    // Actualizar un cliente existente
     public function actualizar($id, $nombre, $email, $telefono, $empresa) {
-        if (!empty($telefono) && !$this->validarTelefono($telefono)) {
-            $_SESSION['error'] = "El teléfono solo debe contener números, espacios o guiones. Ejemplo: +56912345678 o 912345678";
-            return false;
+        // Validar telefono antes de actualizar
+        if (!$this->validarTelefono($telefono)) {
+            return ['success' => false, 'message' => 'El teléfono debe tener 7 a 15 dígitos'];
         }
-        $telefonoLimpio = !empty($telefono) ? $this->limpiarTelefono($telefono) : null;
+        $telefonoLimpio = $this->limpiarTelefono($telefono);
+        
         $query = "UPDATE " . $this->table . " SET nombre = :nombre, email = :email, telefono = :telefono, empresa = :empresa WHERE id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':id', $id);
@@ -58,9 +75,14 @@ class Cliente {
         $stmt->bindParam(':email', $email);
         $stmt->bindParam(':telefono', $telefonoLimpio);
         $stmt->bindParam(':empresa', $empresa);
-        return $stmt->execute();
+        
+        if ($stmt->execute()) {
+            return ['success' => true];
+        }
+        return ['success' => false, 'message' => 'Error al actualizar el cliente'];
     }
 
+    // Eliminar un cliente por su ID
     public function eliminar($id) {
         $query = "DELETE FROM " . $this->table . " WHERE id = :id";
         $stmt = $this->conn->prepare($query);
@@ -68,6 +90,7 @@ class Cliente {
         return $stmt->execute();
     }
 
+    // Contar el total de clientes
     public function contar() {
         $query = "SELECT COUNT(*) as total FROM " . $this->table;
         $stmt = $this->conn->prepare($query);

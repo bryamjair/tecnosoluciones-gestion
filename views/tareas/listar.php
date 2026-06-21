@@ -1,4 +1,8 @@
-<?php include_once __DIR__ . '/../layouts/header.php'; ?>
+<?php 
+// Asegurar que $tareas está definido
+$tareas = $tareas ?? [];
+include_once __DIR__ . '/../layouts/header.php'; 
+?>
 
 <div class="flex-between mb-4">
     <div>
@@ -7,6 +11,15 @@
     </div>
     <a href="index.php?action=tareas&sub=agregar" class="btn btn-primary">+ Nueva Tarea</a>
 </div>
+
+<!-- Mostrar mensajes -->
+<?php if (isset($_SESSION['success'])): ?>
+    <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['error'])): ?>
+    <div class="alert alert-error"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+<?php endif; ?>
 
 <div class="table-responsive">
     <table style="width: 100%; border-collapse: collapse;">
@@ -28,7 +41,7 @@
                 <tr>
                     <td style="padding: 12px; border-bottom: 1px solid #f1f5f9;"><?php echo $t['id']; ?></td>
                     <td style="padding: 12px; border-bottom: 1px solid #f1f5f9;"><strong><?php echo htmlspecialchars($t['titulo']); ?></strong></td>
-                    <td style="padding: 12px; border-bottom: 1px solid #f1f5f9;"><?php echo htmlspecialchars($t['proyecto_nombre']); ?></td>
+                    <td style="padding: 12px; border-bottom: 1px solid #f1f5f9;"><?php echo htmlspecialchars($t['proyecto_nombre'] ?? '-'); ?></td>
                     <td style="padding: 12px; border-bottom: 1px solid #f1f5f9;"><?php echo htmlspecialchars($t['asignado_nombre'] ?? 'No asignado'); ?></td>
                     <td style="padding: 12px; border-bottom: 1px solid #f1f5f9;">
                         <?php 

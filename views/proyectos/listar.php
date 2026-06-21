@@ -1,4 +1,8 @@
-<?php include_once __DIR__ . '/../layouts/header.php'; ?>
+<?php 
+// Asegurar que $proyectos está definido
+$proyectos = $proyectos ?? [];
+include_once __DIR__ . '/../layouts/header.php'; 
+?>
 
 <div class="flex-between mb-4">
     <div>
@@ -8,16 +12,25 @@
     <a href="index.php?action=proyectos&sub=agregar" class="btn btn-primary">+ Nuevo Proyecto</a>
 </div>
 
+<!-- Mostrar mensajes -->
+<?php if (isset($_SESSION['success'])): ?>
+    <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['error'])): ?>
+    <div class="alert alert-error"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+<?php endif; ?>
+
 <div class="card" style="margin-bottom: 1rem;">
     <div class="card-body">
         <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
             <div style="flex: 1; min-width: 150px;">
                 <label style="font-size: 0.65rem; text-transform: uppercase; color: #64748b; font-weight: 600;">Buscar</label>
-                <input type="text" id="buscarProyecto" placeholder="Nombre o cliente..." style="width: 100%; padding: 0.4rem 0.6rem; border: 1px solid #d4d4d8; border-radius: 6px; font-size: 0.8rem;">
+                <input type="text" id="buscarProyecto" placeholder="Nombre o cliente..." style="width: 100%; padding: 0.4rem 0.6rem; border: 1px solid #d4d4d8; border-radius: 6px; font-size: 0.8rem;" onkeyup="buscarProyectos()">
             </div>
             <div>
                 <label style="font-size: 0.65rem; text-transform: uppercase; color: #64748b; font-weight: 600;">Estado</label>
-                <select id="filtroEstado" style="padding: 0.4rem 0.6rem; border: 1px solid #d4d4d8; border-radius: 6px; font-size: 0.8rem;">
+                <select id="filtroEstado" style="padding: 0.4rem 0.6rem; border: 1px solid #d4d4d8; border-radius: 6px; font-size: 0.8rem;" onchange="buscarProyectos()">
                     <option value="">Todos</option>
                     <option value="pendiente">Pendiente</option>
                     <option value="en_progreso">En Progreso</option>
@@ -25,12 +38,12 @@
                 </select>
             </div>
             <div>
-                <button onclick="filtrarProyectos()" class="btn btn-primary btn-sm">Buscar</button>
+                <button onclick="buscarProyectos()" class="btn btn-primary btn-sm">Buscar</button>
                 <button onclick="limpiarFiltroProyectos()" class="btn btn-outline btn-sm">Limpiar</button>
             </div>
         </div>
         <div style="margin-top: 0.5rem; font-size: 0.7rem; color: #94a3b8;">
-            <span id="resultadosProyectos">Mostrando todos los proyectos</span>
+            <span id="resultadosProyectos">Mostrando <?php echo count($proyectos); ?> proyectos</span>
         </div>
     </div>
 </div>
@@ -88,16 +101,5 @@
         </tbody>
     </table>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('buscarProyecto').addEventListener('keyup', function(e) {
-        if (e.key === 'Enter') {
-            filtrarProyectos();
-        }
-    });
-    document.getElementById('filtroEstado').addEventListener('change', filtrarProyectos);
-});
-</script>
 
 <?php include_once __DIR__ . '/../layouts/footer.php'; ?>

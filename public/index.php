@@ -2,9 +2,10 @@
 session_start();
 
 // ============================================
-// SEGURIDAD
+// SEGURIDAD - FUNCIONES DE SANITIZACION
 // ============================================
 
+// Funcion para sanitizar datos
 function sanitizar($data) {
     if (is_array($data)) {
         return array_map('sanitizar', $data);
@@ -12,9 +13,15 @@ function sanitizar($data) {
     return htmlspecialchars(trim($data), ENT_QUOTES, 'UTF-8');
 }
 
-$_GET = sanitizar($_GET);
-$_POST = sanitizar($_POST);
+// Sanitizar GET y POST si existen
+if (!empty($_GET)) {
+    $_GET = sanitizar($_GET);
+}
+if (!empty($_POST)) {
+    $_POST = sanitizar($_POST);
+}
 
+// Funciones para CSRF
 function generarTokenCSRF() {
     if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -26,43 +33,54 @@ function validarTokenCSRF($token) {
     return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }
 
-session_regenerate_id(true);
-
+// Headers de seguridad
 header("X-Frame-Options: DENY");
 header("X-Content-Type-Options: nosniff");
 header("X-XSS-Protection: 1; mode=block");
 
 // ============================================
-// AUTOLOADER
+// AUTOLOADER PERSONALIZADO
 // ============================================
 spl_autoload_register(function ($class_name) {
+    $base_dir = __DIR__ . '/../';
     $paths = [
-        __DIR__ . '/../controllers/',
-        __DIR__ . '/../models/'
+        $base_dir . 'controllers/',
+        $base_dir . 'models/'
     ];
+    
     foreach ($paths as $path) {
         $file = $path . $class_name . '.php';
         if (file_exists($file)) {
             require_once $file;
-            return;
+            return true;
         }
     }
+    return false;
 });
 
 // ============================================
-// CONEXIÓN A LA BASE DE DATOS
+// CONEXION A LA BASE DE DATOS
 // ============================================
-require_once __DIR__ . '/../config/database.php';
+$config_path = __DIR__ . '/../config/database.php';
+if (!file_exists($config_path)) {
+    die("Error: No se encontró el archivo de configuración de base de datos");
+}
+require_once $config_path;
 $database = new Database();
 $conn = $database->getConnection();
 
 // ============================================
 // RUTEO
 // ============================================
-$action = $_GET['action'] ?? 'login';
-$sub = $_GET['sub'] ?? 'index';
+$action = isset($_GET['action']) ? $_GET['action'] : 'login';
+$sub = isset($_GET['sub']) ? $_GET['sub'] : 'index';
 
-if (!isset($_SESSION['user_id']) && !in_array($action, ['login', 'registro', 'recuperar', 'reset_password'])) {
+// Verificar autenticacion
+$public_actions = ['login', 'registro', 'recuperar', 'reset_password'];
+$is_logged_in = isset($_SESSION['user_id']);
+$is_public_action = in_array($action, $public_actions);
+
+if (!$is_logged_in && !$is_public_action) {
     header("Location: index.php?action=login");
     exit();
 }
@@ -70,6 +88,9 @@ if (!isset($_SESSION['user_id']) && !in_array($action, ['login', 'registro', 're
 try {
     switch ($action) {
         case 'login':
+            if (!class_exists('AuthController')) {
+                require_once __DIR__ . '/../controllers/AuthController.php';
+            }
             $controller = new AuthController($conn);
             if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $controller->login();
@@ -79,6 +100,9 @@ try {
             break;
 
         case 'registro':
+            if (!class_exists('AuthController')) {
+                require_once __DIR__ . '/../controllers/AuthController.php';
+            }
             $controller = new AuthController($conn);
             if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $controller->registrar();
@@ -88,6 +112,9 @@ try {
             break;
 
         case 'recuperar':
+            if (!class_exists('AuthController')) {
+                require_once __DIR__ . '/../controllers/AuthController.php';
+            }
             $controller = new AuthController($conn);
             if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $controller->recuperarPassword();
@@ -97,6 +124,9 @@ try {
             break;
 
         case 'reset_password':
+            if (!class_exists('AuthController')) {
+                require_once __DIR__ . '/../controllers/AuthController.php';
+            }
             $controller = new AuthController($conn);
             if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $controller->resetPassword();
@@ -106,16 +136,25 @@ try {
             break;
 
         case 'logout':
+            if (!class_exists('AuthController')) {
+                require_once __DIR__ . '/../controllers/AuthController.php';
+            }
             $controller = new AuthController($conn);
             $controller->logout();
             break;
 
         case 'dashboard':
+            if (!class_exists('DashboardController')) {
+                require_once __DIR__ . '/../controllers/DashboardController.php';
+            }
             $controller = new DashboardController($conn);
             $controller->index();
             break;
 
         case 'clientes':
+            if (!class_exists('ClienteController')) {
+                require_once __DIR__ . '/../controllers/ClienteController.php';
+            }
             $controller = new ClienteController($conn);
             if ($sub == 'agregar') {
                 $controller->agregar();
@@ -123,12 +162,17 @@ try {
                 $controller->editar();
             } elseif ($sub == 'eliminar') {
                 $controller->eliminar();
+            } elseif ($sub == 'buscar') {
+                $controller->buscar();
             } else {
                 $controller->listar();
             }
             break;
 
         case 'proyectos':
+            if (!class_exists('ProyectoController')) {
+                require_once __DIR__ . '/../controllers/ProyectoController.php';
+            }
             $controller = new ProyectoController($conn);
             if ($sub == 'agregar') {
                 $controller->agregar();
@@ -136,12 +180,17 @@ try {
                 $controller->editar();
             } elseif ($sub == 'eliminar') {
                 $controller->eliminar();
+            } elseif ($sub == 'buscar') {
+                $controller->buscar();
             } else {
                 $controller->listar();
             }
             break;
 
         case 'tareas':
+            if (!class_exists('TareaController')) {
+                require_once __DIR__ . '/../controllers/TareaController.php';
+            }
             $controller = new TareaController($conn);
             if ($sub == 'agregar') {
                 $controller->agregar();
@@ -149,12 +198,17 @@ try {
                 $controller->editar();
             } elseif ($sub == 'eliminar') {
                 $controller->eliminar();
+            } elseif ($sub == 'porProyecto') {
+                $controller->porProyecto();
             } else {
                 $controller->listar();
             }
             break;
 
         case 'reportes':
+            if (!class_exists('ReporteController')) {
+                require_once __DIR__ . '/../controllers/ReporteController.php';
+            }
             $controller = new ReporteController($conn);
             if ($sub == 'clientes_pdf') {
                 $controller->generarClientesPDF();
@@ -174,11 +228,17 @@ try {
             break;
 
         case 'auditoria':
+            if (!class_exists('AuditoriaController')) {
+                require_once __DIR__ . '/../controllers/AuditoriaController.php';
+            }
             $controller = new AuditoriaController($conn);
             $controller->index();
             break;
 
         case 'perfil':
+            if (!class_exists('PerfilController')) {
+                require_once __DIR__ . '/../controllers/PerfilController.php';
+            }
             $controller = new PerfilController($conn);
             if ($sub == 'actualizar') {
                 $controller->actualizar();
@@ -190,6 +250,9 @@ try {
             break;
 
         case 'usuarios':
+            if (!class_exists('UsuarioController')) {
+                require_once __DIR__ . '/../controllers/UsuarioController.php';
+            }
             $controller = new UsuarioController($conn);
             if ($sub == 'cambiar_rol') {
                 $controller->cambiarRol();
@@ -201,6 +264,9 @@ try {
             break;
 
         case 'api':
+            if (!class_exists('ApiController')) {
+                require_once __DIR__ . '/../controllers/ApiController.php';
+            }
             $controller = new ApiController($conn);
             if ($sub == 'stats') {
                 $controller->stats();
@@ -208,6 +274,10 @@ try {
                 $controller->dashboard();
             } elseif ($sub == 'actividad') {
                 $controller->actividad();
+            } elseif ($sub == 'buscar_clientes') {
+                $controller->buscarClientes();
+            } elseif ($sub == 'buscar_proyectos') {
+                $controller->buscarProyectos();
             } else {
                 echo json_encode(['error' => 'Subacción no válida']);
             }

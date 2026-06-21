@@ -1,4 +1,8 @@
-<?php include_once __DIR__ . '/../layouts/header.php'; ?>
+<?php 
+// Asegurar que $clientes existe
+$clientes = $clientes ?? [];
+include_once __DIR__ . '/../layouts/header.php'; 
+?>
 
 <div class="flex-between mb-4">
     <div>
@@ -7,6 +11,10 @@
     </div>
     <a href="index.php?action=proyectos" class="btn btn-outline">← Volver</a>
 </div>
+
+<?php if (isset($_SESSION['error'])): ?>
+    <div class="alert alert-error"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+<?php endif; ?>
 
 <div class="card" style="max-width: 700px; margin: 0 auto;">
     <div class="card-header">Formulario de Registro</div>

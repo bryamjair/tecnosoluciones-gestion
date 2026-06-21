@@ -1,15 +1,19 @@
 <?php
+// Controlador de Reportes - Genera reportes en PDF y Excel (CSV)
 class ReporteController {
     private $conn;
 
+    // Constructor - Recibe la conexion a la base de datos
     public function __construct($db) {
         $this->conn = $db;
     }
 
+    // Mostrar la pagina de reportes
     public function index() {
         $clienteModel = new Cliente($this->conn);
         $proyectoModel = new Proyecto($this->conn);
         
+        // Obtener estadisticas para los reportes
         $totalClientes = $clienteModel->contar();
         $totalProyectos = $proyectoModel->contar();
         $proyectosPendientes = $proyectoModel->contarPorEstado('pendiente');
@@ -22,6 +26,7 @@ class ReporteController {
         $tareasPrioridadAlta = 0;
         
         try {
+            // Verificar si la tabla tareas existe
             $stmt = $this->conn->query("SHOW TABLES LIKE 'tareas'");
             if ($stmt->rowCount() > 0) {
                 $tareaModel = new Tarea($this->conn);
@@ -44,50 +49,58 @@ class ReporteController {
         include_once __DIR__ . '/../views/reportes/index.php';
     }
 
+    // Generar PDF de clientes
     public function generarClientesPDF() {
         $clienteModel = new Cliente($this->conn);
         $clientes = $clienteModel->listar();
         $this->mostrarReporteHTML($clientes, 'clientes', 'Reporte de Clientes', 'pdf');
     }
     
+    // Generar PDF de proyectos
     public function generarProyectosPDF() {
         $proyectoModel = new Proyecto($this->conn);
         $proyectos = $proyectoModel->listar();
         $this->mostrarReporteHTML($proyectos, 'proyectos', 'Reporte de Proyectos', 'pdf');
     }
     
+    // Generar PDF de tareas
     public function generarTareasPDF() {
         $tareaModel = new Tarea($this->conn);
         $tareas = $tareaModel->listar();
         $this->mostrarReporteHTML($tareas, 'tareas', 'Reporte de Tareas', 'pdf');
     }
 
+    // Metodo para imprimir clientes
     public function imprimirClientes() {
         $clienteModel = new Cliente($this->conn);
         $clientes = $clienteModel->listar();
         $this->mostrarReporteHTML($clientes, 'clientes', 'Reporte de Clientes', 'print');
     }
     
+    // Metodo para imprimir proyectos
     public function imprimirProyectos() {
         $proyectoModel = new Proyecto($this->conn);
         $proyectos = $proyectoModel->listar();
         $this->mostrarReporteHTML($proyectos, 'proyectos', 'Reporte de Proyectos', 'print');
     }
     
+    // Metodo para imprimir tareas
     public function imprimirTareas() {
         $tareaModel = new Tarea($this->conn);
         $tareas = $tareaModel->listar();
         $this->mostrarReporteHTML($tareas, 'tareas', 'Reporte de Tareas', 'print');
     }
 
+    // Metodo privado para mostrar reporte HTML (usado por PDF e impresion)
     private function mostrarReporteHTML($datos, $tipo, $titulo, $modo = 'print') {
         ?>
         <!DOCTYPE html>
         <html lang="es">
         <head>
             <meta charset="UTF-8">
-            <title><?php echo $titulo; ?> - TecnoSoluciones</title>
+            <title><?php echo $titulo; ?> - TecnoSoluciones-Gestor</title>
             <style>
+                /* Estilos para el reporte */
                 * { margin: 0; padding: 0; box-sizing: border-box; }
                 body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background: white; padding: 20px; color: #1e293b; }
                 .report-container { max-width: 1200px; margin: 0 auto; background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
@@ -129,7 +142,7 @@ class ReporteController {
                 <div class="info-section">
                     <div class="info-box"><div class="label">Total Registros</div><div class="value"><?php echo count($datos); ?></div></div>
                     <div class="info-box"><div class="label">Generado por</div><div class="value"><?php echo $_SESSION['user_nombre'] ?? 'Usuario'; ?></div></div>
-                    <div class="info-box"><div class="label">Empresa</div><div class="value">TecnoSoluciones</div></div>
+                    <div class="info-box"><div class="label">Empresa</div><div class="value">TecnoSoluciones-Gestor</div></div>
                 </div>
                 <div class="table-container">
                     <?php if ($tipo == 'clientes'): ?>
@@ -177,7 +190,7 @@ class ReporteController {
                     </table>
                     <?php endif; ?>
                 </div>
-                <div class="footer"><strong>TecnoSoluciones</strong> - Sistema de Gestión de Proyectos<br>Copyright &copy; <?php echo date('Y'); ?> - Todos los derechos reservados</div>
+                <div class="footer"><strong>TecnoSoluciones-Gestor</strong> - Sistema de Gestión de Proyectos<br>Copyright &copy; <?php echo date('Y'); ?> - Todos los derechos reservados</div>
             </div>
             
             <?php if ($modo === 'print'): ?>
@@ -185,7 +198,7 @@ class ReporteController {
             <?php endif; ?>
             
             <?php if ($modo === 'pdf'): ?>
-            <button class="no-print" onclick="generarPDF()" style="position:fixed;bottom:20px;right:20px;padding:10px 24px;background:#0d9488;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;box-shadow:0 4px 12px rgba(13,148,136,0.3);z-index:999;">📄 Guardar PDF</button>
+            <button class="no-print" onclick="generarPDF()" style="position:fixed;bottom:20px;right:20px;padding:10px 24px;background:#0d9488;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;box-shadow:0 4px 12px rgba(13,148,136,0.3);z-index:999;">Guardar PDF</button>
             <script>
                 function generarPDF() {
                     var element = document.getElementById('reportContainer');
@@ -206,6 +219,7 @@ class ReporteController {
         exit();
     }
 
+    // Exportar clientes a Excel (CSV)
     public function exportarClientesExcel() {
         $clienteModel = new Cliente($this->conn);
         $clientes = $clienteModel->listar();
@@ -221,6 +235,7 @@ class ReporteController {
         exit();
     }
 
+    // Exportar proyectos a Excel (CSV)
     public function exportarProyectosExcel() {
         $proyectoModel = new Proyecto($this->conn);
         $proyectos = $proyectoModel->listar();
@@ -236,6 +251,7 @@ class ReporteController {
         exit();
     }
 
+    // Exportar tareas a Excel (CSV)
     public function exportarTareasExcel() {
         $tareaModel = new Tarea($this->conn);
         $tareas = $tareaModel->listar();

@@ -1,4 +1,12 @@
-<?php include_once __DIR__ . '/../layouts/header.php'; ?>
+<?php 
+// Asegurar que $cliente existe
+if (!isset($cliente) || empty($cliente)) {
+    $_SESSION['error'] = "Cliente no encontrado";
+    header("Location: index.php?action=clientes");
+    exit();
+}
+include_once __DIR__ . '/../layouts/header.php'; 
+?>
 
 <div class="flex-between mb-4">
     <div>
@@ -7,6 +15,10 @@
     </div>
     <a href="index.php?action=clientes" class="btn btn-outline">← Volver</a>
 </div>
+
+<?php if (isset($_SESSION['error'])): ?>
+    <div class="alert alert-error"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+<?php endif; ?>
 
 <div class="card" style="max-width: 600px; margin: 0 auto;">
     <div class="card-header">Formulario de Edicion</div>
@@ -22,7 +34,7 @@
             </div>
             <div class="form-group">
                 <label>Telefono</label>
-                <input type="tel" name="telefono" value="<?php echo isset($cliente['telefono']) ? htmlspecialchars($cliente['telefono']) : ''; ?>">
+                <input type="tel" name="telefono" value="<?php echo isset($cliente['telefono']) ? htmlspecialchars($cliente['telefono']) : ''; ?>" placeholder="Ej: 912345678">
             </div>
             <div class="form-group">
                 <label>Empresa</label>

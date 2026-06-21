@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TecnoSoluciones - Sistema de Gestion</title>
+    <!-- Titulo de la pagina actualizado con el nombre del sistema -->
+    <title>TecnoSoluciones-Gestor - Sistema de Gestión</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Archivo JavaScript principal -->
+    <script src="assets/js/main.js"></script>
     <style>
+        /* Reset y estilos globales */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -13,6 +17,7 @@
             color: #1e293b;
             line-height: 1.5;
         }
+        /* Sidebar - menu lateral fijo */
         .sidebar {
             position: fixed;
             left: 0;
@@ -31,6 +36,7 @@
             border-bottom: 1px solid #d4d4d8;
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
         }
+        /* Logo actualizado con el nuevo nombre */
         .logo { font-size: 1.25rem; font-weight: 600; color: #ffffff; letter-spacing: -0.3px; }
         .logo span { font-weight: 300; color: #2dd4bf; }
         .logo-sub { font-size: 0.65rem; color: #94a3b8; margin-top: 0.25rem; }
@@ -74,7 +80,9 @@
             transition: color 0.2s;
         }
         .logout-link:hover { color: #dc2626; }
+        /* Contenido principal */
         .main-content { margin-left: 260px; padding: 2rem; min-height: 100vh; }
+        /* Estilos de botones */
         .btn {
             padding: 0.5rem 1.25rem;
             font-size: 0.8rem;
@@ -94,15 +102,18 @@
         .btn-sm { padding: 0.25rem 0.75rem; font-size: 0.7rem; border-radius: 6px; }
         .btn-danger { background: transparent; border: 1px solid #fecaca; color: #dc2626; }
         .btn-danger:hover { background: #fef2f2; border-color: #dc2626; color: #b91c1c; }
+        /* Estilos de tarjetas */
         .card { background: white; border: 1px solid #d4d4d8; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
         .card-header { padding: 1rem 1.25rem; background: #fafafa; border-bottom: 1px solid #e4e4e7; font-size: 0.85rem; font-weight: 600; color: #0d9488; }
         .card-body { padding: 1.25rem; }
+        /* Estilos de tablas */
         .table-responsive { overflow-x: auto; border: 1px solid #d4d4d8; border-radius: 16px; background: white; }
         table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
         th { text-align: left; padding: 0.875rem; background: #fafafa; font-weight: 600; color: #1e293b; border-bottom: 1px solid #e4e4e7; }
         td { padding: 0.875rem; border-bottom: 1px solid #f1f5f9; }
         tr:last-child td { border-bottom: none; }
         tr:hover td { background: #f8fafc; }
+        /* Estilos de formularios */
         .form-group { margin-bottom: 1.25rem; }
         label {
             display: block;
@@ -125,6 +136,7 @@
             transition: border-color 0.2s;
         }
         input:focus, select:focus, textarea:focus { border-bottom-color: #0d9488; }
+        /* Badges o etiquetas de estado */
         .badge {
             display: inline-block;
             padding: 0.2rem 0.7rem;
@@ -138,9 +150,17 @@
         .badge-alta { background: #fee2e2; color: #dc2626; }
         .badge-media { background: #fed7aa; color: #ea580c; }
         .badge-baja { background: #dcfce7; color: #16a34a; }
-        .alert { padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.75rem; margin-bottom: 1rem; }
+        /* Alertas y mensajes */
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-bottom: 1rem;
+            transition: opacity 0.5s;
+        }
         .alert-success { background: #ccfbf1; border-left: 3px solid #0d9488; color: #115e59; }
         .alert-error { background: #fee2e2; border-left: 3px solid #ef4444; color: #991b1b; }
+        /* Utilidades */
         .flex-between { display: flex; justify-content: space-between; align-items: center; }
         .mb-4 { margin-bottom: 1.5rem; }
         .mb-3 { margin-bottom: 1rem; }
@@ -148,6 +168,7 @@
         .text-center { text-align: center; }
         .text-muted { color: #94a3b8; }
         .fw-bold { font-weight: 600; }
+        /* Paginacion */
         .pagination { display: flex; justify-content: center; gap: 0.5rem; list-style: none; margin-top: 1.5rem; }
         .page-link {
             padding: 0.4rem 0.75rem;
@@ -162,6 +183,8 @@
         .page-link:hover { border-color: #0d9488; color: #0d9488; }
         .page-item.active .page-link { background: #0d9488; color: white; border-color: #0d9488; }
         hr { margin: 1.5rem 0; border: none; border-top: 1px solid #e4e4e7; }
+        .password-strength { height: 4px; border-radius: 4px; margin-top: 4px; transition: all 0.3s; }
+        /* Responsive para dispositivos moviles */
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); position: fixed; z-index: 1000; }
             .sidebar.active { transform: translateX(0); }
@@ -187,25 +210,31 @@
 </head>
 <body>
 
+<!-- Verificar si el usuario esta autenticado para mostrar el sidebar -->
 <?php if (isset($_SESSION['user_id'])): 
     $current_action = $_GET['action'] ?? 'dashboard';
 ?>
+<!-- Sidebar - Menu lateral -->
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <div class="logo">Tecno<span>Soluciones</span></div>
-        <div class="logo-sub">Gestion de Proyectos</div>
+        <!-- Logo con el nombre actualizado -->
+        <div class="logo">TecnoSoluciones<span>-Gestor</span></div>
+        <div class="logo-sub">Sistema de Gestión de Proyectos</div>
     </div>
     <div class="sidebar-nav">
+        <!-- Seccion Principal -->
         <div class="nav-section">
             <div class="nav-title">Principal</div>
             <a href="index.php?action=dashboard" class="nav-item <?php echo ($current_action == 'dashboard') ? 'active' : ''; ?>">Dashboard</a>
         </div>
+        <!-- Seccion Gestion -->
         <div class="nav-section">
             <div class="nav-title">Gestion</div>
             <a href="index.php?action=clientes" class="nav-item <?php echo ($current_action == 'clientes') ? 'active' : ''; ?>">Clientes</a>
             <a href="index.php?action=proyectos" class="nav-item <?php echo ($current_action == 'proyectos') ? 'active' : ''; ?>">Proyectos</a>
             <a href="index.php?action=tareas" class="nav-item <?php echo ($current_action == 'tareas') ? 'active' : ''; ?>">Tareas</a>
         </div>
+        <!-- Seccion Reportes -->
         <div class="nav-section">
             <div class="nav-title">Reportes</div>
             <a href="index.php?action=reportes" class="nav-item <?php echo ($current_action == 'reportes') ? 'active' : ''; ?>">Reportes</a>
@@ -213,6 +242,7 @@
             <a href="index.php?action=auditoria" class="nav-item <?php echo ($current_action == 'auditoria') ? 'active' : ''; ?>">Auditoria</a>
             <?php endif; ?>
         </div>
+        <!-- Seccion Configuracion -->
         <div class="nav-section">
             <div class="nav-title">Configuracion</div>
             <?php if (in_array($_SESSION['user_rol'] ?? 'usuario', ['admin', 'super_admin'])): ?>
@@ -221,6 +251,7 @@
             <a href="index.php?action=perfil" class="nav-item <?php echo ($current_action == 'perfil') ? 'active' : ''; ?>">Mi Perfil</a>
         </div>
     </div>
+    <!-- Footer del sidebar con informacion del usuario -->
     <div class="sidebar-footer">
         <div class="user-name"><?php echo $_SESSION['user_nombre']; ?></div>
         <div class="user-role"><?php echo ucfirst($_SESSION['user_rol'] ?? 'Usuario'); ?></div>
@@ -228,7 +259,9 @@
     </div>
 </div>
 
+<!-- Boton para mostrar/ocultar sidebar en moviles -->
 <div class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('active')">Menu</div>
 
+<!-- Contenido principal -->
 <div class="main-content">
 <?php endif; ?>

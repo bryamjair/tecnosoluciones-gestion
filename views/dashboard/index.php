@@ -1,6 +1,8 @@
+<!-- Incluir el header del layout -->
 <?php include_once __DIR__ . '/../layouts/header.php'; ?>
 
 <style>
+    /* Estilos del dashboard - KPIs y graficos */
     .kpi-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -58,12 +60,14 @@
     }
     .chart-box canvas { max-height: 220px; }
     
+    /* Responsive para dispositivos moviles */
     @media (max-width: 768px) {
         .kpi-grid { grid-template-columns: repeat(2, 1fr); }
         .charts-grid { grid-template-columns: 1fr; }
     }
 </style>
 
+<!-- Encabezado del dashboard -->
 <div class="flex-between mb-4">
     <div>
         <h2 style="font-size: 1.5rem; font-weight: 600;">Dashboard</h2>
@@ -79,6 +83,7 @@
     </div>
 </div>
 
+<!-- KPIs - Indicadores clave de rendimiento -->
 <div class="kpi-grid">
     <div class="kpi-card">
         <div class="icono">👥</div>
@@ -102,19 +107,21 @@
     </div>
 </div>
 
+<!-- Graficos estadisticos -->
 <div class="charts-grid">
     <div class="chart-box">
-        <h3>📈 Proyectos por Estado</h3>
+        <h3>Proyectos por Estado</h3>
         <canvas id="proyectosChart"></canvas>
     </div>
     <div class="chart-box">
-        <h3>📊 Tareas por Prioridad</h3>
+        <h3>Tareas por Prioridad</h3>
         <canvas id="tareasChart"></canvas>
     </div>
 </div>
 
+<!-- Actividad reciente -->
 <div class="card">
-    <div class="card-header">🔄 Actividad Reciente</div>
+    <div class="card-header">Actividad Reciente</div>
     <div class="table-responsive" style="border: none; border-radius: 0;">
         <table style="border: none;">
             <thead>
@@ -134,25 +141,32 @@
     </div>
 </div>
 
+<!-- Libreria Chart.js para graficos -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+// Variables para controlar las instancias de los graficos
 let proyectosChartInstance = null;
 let tareasChartInstance = null;
 
+// Cargar datos del dashboard al iniciar la pagina
 document.addEventListener('DOMContentLoaded', function() {
     cargarDashboard();
 });
 
+// Funcion para cargar los datos del dashboard via API
 function cargarDashboard() {
     fetch('index.php?action=api&sub=dashboard')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+                // Actualizar KPIs
                 document.getElementById('kpiClientes').textContent = data.stats.clientes || 0;
                 document.getElementById('kpiProyectos').textContent = data.stats.proyectos || 0;
                 document.getElementById('kpiTareas').textContent = data.stats.tareas_pendientes || 0;
                 document.getElementById('kpiVencidas').textContent = data.stats.tareas_vencidas || 0;
+                // Crear graficos
                 crearGraficos(data.stats);
+                // Cargar actividad reciente
                 cargarActividad();
             }
         })
@@ -161,7 +175,9 @@ function cargarDashboard() {
         });
 }
 
+// Funcion para crear los graficos
 function crearGraficos(stats) {
+    // Grafico de proyectos por estado
     const ctxProyectos = document.getElementById('proyectosChart').getContext('2d');
     if (proyectosChartInstance) proyectosChartInstance.destroy();
     proyectosChartInstance = new Chart(ctxProyectos, {
@@ -189,6 +205,7 @@ function crearGraficos(stats) {
         }
     });
     
+    // Grafico de tareas por prioridad
     const ctxTareas = document.getElementById('tareasChart').getContext('2d');
     if (tareasChartInstance) tareasChartInstance.destroy();
     tareasChartInstance = new Chart(ctxTareas, {
@@ -216,6 +233,7 @@ function crearGraficos(stats) {
     });
 }
 
+// Funcion para cargar la actividad reciente
 function cargarActividad() {
     fetch('index.php?action=api&sub=actividad')
         .then(response => response.json())
@@ -244,4 +262,5 @@ function cargarActividad() {
 }
 </script>
 
+<!-- Incluir el footer del layout -->
 <?php include_once __DIR__ . '/../layouts/footer.php'; ?>

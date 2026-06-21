@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recuperar Contraseña - TecnoSoluciones</title>
+    <!-- Titulo de la pagina de recuperar contraseña actualizado -->
+    <title>Recuperar Contraseña - TecnoSoluciones-Gestor</title>
     <style>
+        /* Reset y estilos globales */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -24,6 +26,7 @@
             border: 1px solid rgba(13, 148, 136, 0.1);
         }
         .header { text-align: center; margin-bottom: 2rem; }
+        /* Logo actualizado con el nuevo nombre */
         .logo { font-size: 1.75rem; font-weight: 600; color: #1e293b; letter-spacing: -0.5px; }
         .logo span { color: #0d9488; font-weight: 500; }
         .subtitle { font-size: 0.8rem; color: #64748b; margin-top: 0.5rem; }
@@ -105,19 +108,23 @@
     <div class="container">
         <div class="card">
             <div class="header">
-                <div class="logo">Tecno<span>Soluciones</span></div>
+                <!-- Logo con el nombre actualizado -->
+                <div class="logo">TecnoSoluciones<span>-Gestor</span></div>
                 <div class="subtitle">Recuperar Contraseña</div>
             </div>
             <div class="info-text">
                 Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.
             </div>
+            <!-- Mostrar mensajes de error o exito -->
             <?php if (isset($_SESSION['error'])): ?>
                 <div class="alert alert-error"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
             <?php endif; ?>
             <?php if (isset($_SESSION['success'])): ?>
                 <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
             <?php endif; ?>
+            <!-- Formulario de recuperacion con token CSRF -->
             <form method="POST">
+                <input type="hidden" name="csrf_token" value="<?php echo generarTokenCSRF(); ?>">
                 <div class="form-group">
                     <label>Correo Electronico</label>
                     <input type="email" name="email" placeholder="usuario@ejemplo.com" required autofocus>
